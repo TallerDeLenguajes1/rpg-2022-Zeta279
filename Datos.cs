@@ -6,6 +6,7 @@ namespace JuegoRPG{
         private DateTime fechaNac;
         private int edad;
         private int salud;
+        private int saludInicial;
 
         public Datos(){
             string[] tipos = new string[] {"Elfo", "Hechicero", "Barbaro", "Orco", "Arquero"};
@@ -19,6 +20,7 @@ namespace JuegoRPG{
             this.fechaNac = new DateTime(rnd.Next(1985, 2006), rnd.Next(1, 13), rnd.Next(1, 31));
             this.edad = DateTime.Now.Year - fechaNac.Year;
             this.salud = 100;
+            this.saludInicial = 100;
         }
 
         public string Tipo { get => tipo; set => tipo = value; }
@@ -27,5 +29,6 @@ namespace JuegoRPG{
         public DateTime FechaNac { get => fechaNac; set => fechaNac = value; }
         public int Edad { get => edad; set => edad = value; }
         public int Salud { get => salud; set => salud = value; }
+        public int SaludInicial { get => saludInicial; set => saludInicial = value; }
     }
 }

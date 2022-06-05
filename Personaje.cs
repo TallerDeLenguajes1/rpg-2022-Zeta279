@@ -8,6 +8,34 @@ namespace JuegoRPG{
             this.dat = dat;
         }
 
+        internal Caracteristicas Carac { get => carac; set => carac = value; }
+        internal Datos Dat { get => dat; set => dat = value; }
+
+        public void MejorarPJ ()
+        {
+            this.dat.SaludInicial += 20;
+            this.dat.Salud = this.dat.SaludInicial;
+            this.Carac.Armadura += 2;
+            this.Carac.Velocidad += 2;
+            this.Carac.Fuerza += 2;
+            this.Carac.Destreza += 2;
+            this.Carac.Nivel += 1;
+        }
+
+        public void RecibirDMG(int dmg)
+        {
+            this.dat.Salud -= dmg;
+            if(this.dat.Salud < 0)
+            {
+                this.dat.Salud = 0;
+            }
+        }
+
+        public bool estaVivo()
+        {
+            return this.Dat.Salud > 0;
+        }
+
         public override string ToString()
         {
             string cadena = new string("");
