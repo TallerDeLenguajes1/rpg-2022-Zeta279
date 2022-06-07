@@ -17,10 +17,12 @@ namespace JuegoRPG{
             this.tipo = tipos[rnd.Next(0, 5)];
             this.nombre = nombres[rnd.Next(0, 5)];
             this.apodo = apodos[rnd.Next(0, 5)];
-            this.fechaNac = new DateTime(rnd.Next(1985, 2006), rnd.Next(1, 13), rnd.Next(1, 31));
+            this.fechaNac = new DateTime(1985, 1, 1);
+            this.fechaNac = this.fechaNac.AddMonths(rnd.Next(1, 12));
+            this.fechaNac = this.fechaNac.AddDays(rnd.Next(1, 31));
             this.edad = DateTime.Now.Year - fechaNac.Year;
-            this.salud = 100;
-            this.saludInicial = 100;
+            this.salud = 3000;
+            this.saludInicial = 3000;
         }
 
         public string Tipo { get => tipo; set => tipo = value; }

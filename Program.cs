@@ -86,6 +86,13 @@
                     Console.WriteLine("Empate");
                 }
             }
+
+            if(player1.estaVivo()){
+                Console.WriteLine($"Ganó el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}");
+            }
+            else{
+                Console.WriteLine($"Ganó el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}");
+            }
         }
     }
 }

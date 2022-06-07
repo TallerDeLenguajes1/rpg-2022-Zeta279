@@ -13,7 +13,7 @@ namespace JuegoRPG{
 
         public void MejorarPJ ()
         {
-            this.dat.SaludInicial += 20;
+            this.dat.SaludInicial += 200;
             this.dat.Salud = this.dat.SaludInicial;
             this.Carac.Armadura += 2;
             this.Carac.Velocidad += 2;
@@ -47,7 +47,7 @@ namespace JuegoRPG{
             cadena += $"Fecha de nacimiento: {this.dat.FechaNac.ToString("dd/MM/yyyy")}\n";
             cadena += $"Edad: {this.dat.Edad}\n\n";
 
-            cadena += "Características:\n";
+            cadena += "Caracterï¿½sticas:\n";
             cadena += $"Velocidad: {this.carac.Velocidad}\n";
             cadena += $"Destreza: {this.carac.Destreza}\n";
             cadena += $"Fuerza: {this.carac.Fuerza}\n";
