@@ -3,96 +3,197 @@
         static void Main(string[] args){
             int cantidadJugadores;
             List<Personaje> listaPersonajes = new List<Personaje>();
-            int num1, num2, contEnfrentamientos = 0;
+            int opcion = 0, contEnfrentamientos = 1;
+            int dmgProvocado1 = 0, dmgProvocado2 = 0, aux;
             Personaje player1, player2;
             Random rnd = new Random();
 
-            // Ingresar la cantidad de jugadores
-            Console.WriteLine("Ingrese la cantidad de jugadores (mínimo 2): ");
-            do
+            while(opcion != 3)
             {
-                cantidadJugadores = int.Parse(Console.ReadLine());
-            } while (cantidadJugadores < 2);
 
-            for (int i = 0; i < cantidadJugadores; i++)
-            {
-                listaPersonajes.Add(new Personaje(new Caracteristicas(), new Datos()));
-            }
+                Console.WriteLine("Ingrese una opción: ");
+                Console.WriteLine("1) Jugar");
+                Console.WriteLine("2) Registro de batallas");
+                Console.WriteLine("3) Salir");
 
-            // Mostrar los datos
-            Console.WriteLine($"Mostrando los datos de {cantidadJugadores} personajes\n");
+                Console.Write("Opción: ");
+                opcion = Int32.Parse(Console.ReadLine());
 
-            foreach(Personaje p in listaPersonajes)
-            {
-                Console.WriteLine(p);
-            }
-
-            // Elegir los personajes de forma aleatoria
-            num1 = rnd.Next(0, listaPersonajes.Count);
-            do
-            {
-                num2 = rnd.Next(0, listaPersonajes.Count);
-            } while (num2 == num1);
-
-            player1 = listaPersonajes[num1];
-            player2 = listaPersonajes[num2];
-
-            // Enfrentamientos
-            while (listaPersonajes.Count > 1)
-            {
-                contEnfrentamientos++;
-
-                Console.WriteLine($"\nEnfrentamiento {contEnfrentamientos}");
-                Console.WriteLine($"{player1.Dat.Nombre} {player1.Dat.Apodo} vs {player2.Dat.Nombre} {player2.Dat.Apodo}");
-
-                for(int i = 0; i < 6 && player1.estaVivo() && player2.estaVivo(); i++)
+                switch (opcion)
                 {
-                    if(i % 2 == 0)
-                    {
-                        Console.WriteLine($"Ataca el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}");
-                        Console.WriteLine($"Daño provocado: {Gameplay.Ataque(player1, player2)}\n");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Ataca el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}");
-                        Console.WriteLine($"Daño provocado: {Gameplay.Ataque(player1, player2)}\n");
-                    }
-                }
+                    case 1:
+                        // Ingresar la cantidad de jugadores
+                        Console.WriteLine("Ingrese la cantidad de jugadores (mínimo 2, máximo 20): ");
+                        do
+                        {
+                            cantidadJugadores = Int32.Parse(Console.ReadLine());
+                        } while (cantidadJugadores < 2 || cantidadJugadores > 20);
 
-                if (!player1.estaVivo() || player1.Dat.Salud < player2.Dat.Salud)
-                {
-                    Console.WriteLine($"Perdió el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}");
-                    listaPersonajes.Remove(player1);
-                    do
-                    {
-                        num1 = rnd.Next(0, listaPersonajes.Count);
-                    } while (num1 == num2 && listaPersonajes.Count > 1);
-                    player1 = listaPersonajes[num1];
-                    player2.MejorarPJ();
-                }
-                else if(!player2.estaVivo() || player2.Dat.Salud < player1.Dat.Salud)
-                {
-                    Console.WriteLine($"Perdió el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}");
-                    listaPersonajes.Remove(player2);
-                    do
-                    {
-                        num2 = rnd.Next(0, listaPersonajes.Count);
-                    } while (num2 == num1 && listaPersonajes.Count > 1);
-                    player2 = listaPersonajes[num2];
-                    player1.MejorarPJ();
-                }
-                else
-                {
-                    Console.WriteLine("Empate");
-                }
-            }
+                        // Guardar los jugadores en una lista
+                        for (int i = 0; i < cantidadJugadores; i++)
+                        {
+                            listaPersonajes.Add(new Personaje(new Caracteristicas(), new Datos()));
+                        }
 
-            if(player1.estaVivo()){
-                Console.WriteLine($"Ganó el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}");
+                        // Mostrar los datos de cada jugador
+                        Console.WriteLine($"Mostrando los datos de {cantidadJugadores} personajes\n");
+
+                        foreach (Personaje p in listaPersonajes)
+                        {
+                            Console.WriteLine(p);
+                        }
+
+                        // Elegir los personajes
+                        player1 = listaPersonajes[0];
+                        player2 = listaPersonajes[1];
+                        listaPersonajes.Remove(player1);
+                        listaPersonajes.Remove(player2);
+
+                        
+                        // Enfrentamientos entre los jugadores
+                        while (player1.estaVivo() && player2.estaVivo())
+                        {
+                            Console.WriteLine($"\nEnfrentamiento {contEnfrentamientos++}");
+                            Console.WriteLine($"{player1.Dat.Nombre} {player1.Dat.Apodo} vs {player2.Dat.Nombre} {player2.Dat.Apodo}");
+
+                            for (int i = 0; i < 6 && player1.estaVivo() && player2.estaVivo(); i++)
+                            {
+                                if (i % 2 == 0)
+                                {
+                                    aux = Gameplay.Ataque(player1, player2);
+                                    dmgProvocado1 += aux;
+                                    Console.WriteLine($"Ataca el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}");
+                                    Console.WriteLine($"Daño provocado: {aux}\n");
+                                }
+                                else
+                                {
+                                    aux = Gameplay.Ataque(player1, player2);
+                                    dmgProvocado2 += aux;
+                                    Console.WriteLine($"Ataca el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}");
+                                    Console.WriteLine($"Daño provocado: {aux}\n");
+                                }
+                            }
+
+                            // Determinar ganador del enfrentamiento
+                            if (!player1.estaVivo() || player1.Dat.Salud < player2.Dat.Salud)
+                            {
+                                Console.WriteLine($"Perdió el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}");
+                                if(listaPersonajes.Count > 0)
+                                {
+                                    player1 = listaPersonajes[rnd.Next(0, listaPersonajes.Count)];
+                                    listaPersonajes.Remove(player1);
+                                }
+                                dmgProvocado1 = 0;
+                                player2.MejorarPJ();
+                            }
+                            else if (!player2.estaVivo() || player2.Dat.Salud < player1.Dat.Salud)
+                            {
+                                Console.WriteLine($"Perdió el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}");
+                                if(listaPersonajes.Count > 0)
+                                {
+                                    player2 = listaPersonajes[rnd.Next(0, listaPersonajes.Count)];
+                                    listaPersonajes.Remove(player2);
+                                }
+                                dmgProvocado2 = 0;
+                                player1.MejorarPJ();
+                            }
+                            else
+                            {
+                                Console.WriteLine("Empate");
+                            }
+                        }
+
+                        // Mostrar ganador y guardarlo en un archivo .csv
+                        if (!File.Exists("ganadores.csv"))
+                        {
+                            File.Create("ganadores.csv").Close();
+                            File.WriteAllText("ganadores.csv", "FECHA;NOMBRE;DAÑO\n");
+                        }
+
+                        if (player1.estaVivo())
+                        {
+                            Console.WriteLine($"Ganó el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}\n");
+                            File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyy")};{player1.Dat.Nombre + " " + player1.Dat.Apodo};{dmgProvocado1}\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Ganó el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}\n");
+                            File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyy")};{player2.Dat.Nombre + " " + player2.Dat.Apodo};{dmgProvocado2}\n");
+                        }
+                        
+                        break;
+
+                    case 2:
+                        Registro();
+                        break;
+                    case 3:
+                        Console.WriteLine("Saliendo...");
+                        break;
+                    default:
+                        Console.WriteLine("Opción incorrecta");
+                        break;
+                }
+                
             }
-            else{
-                Console.WriteLine($"Ganó el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}");
+        }
+
+        static void Registro()
+        {
+            int opcionRegistro = 0;
+
+            while(opcionRegistro < 1 || opcionRegistro > 2)
+            {
+                Console.WriteLine("\n1) Ver registro");
+                Console.WriteLine("2) Limpiar registro");
+                Console.WriteLine("3) Regresar al menú");
+
+                Console.Write("Opción: ");
+                opcionRegistro = Int32.Parse(Console.ReadLine());
+
+                switch (opcionRegistro)
+                {
+                    case 1:
+                        if (File.Exists("ganadores.csv"))
+                        {
+                            Console.WriteLine("Mostrando el historial de batallas\n");
+                            List<string> lista = new List<string>();
+                            string[] listado;
+
+                            lista = File.ReadLines("ganadores.csv").ToList();
+                            lista.RemoveAt(0);
+
+                            foreach (string registro in lista)
+                            {
+                                listado = registro.Split(";");
+                                Console.WriteLine($"Fecha de batalla: {listado[0]}");
+                                Console.WriteLine($"Nombre: {listado[1]}");
+                                Console.WriteLine($"Daño total: {listado[2]}\n");
+
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("No se registró ninguna batalla");
+                        }
+                        break;
+                    case 2:
+                        if (File.Exists("ganadores.csv"))
+                        {
+                            File.Delete("ganadores.csv");
+                        }
+
+                        Console.WriteLine("Registro limpiado");
+                        break;
+                    case 3:
+                        Console.WriteLine("Regresando...");
+                        break;
+                    default:
+                        Console.WriteLine("Opción incorrecta");
+                        break;
+                }
             }
+            
+            
         }
     }
 }

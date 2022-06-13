@@ -2,7 +2,7 @@
 {
     class Gameplay
     {
-        public static float Ataque(Personaje atacante, Personaje defensor)
+        public static int Ataque(Personaje atacante, Personaje defensor)
         {
             Random rnd = new Random();
             float poderDisparo;
@@ -21,7 +21,7 @@
 
             defensor.RecibirDMG(Convert.ToInt32(dmgProvocado));
 
-            return dmgProvocado;
+            return Convert.ToInt32(dmgProvocado);
         }
     }
 }
