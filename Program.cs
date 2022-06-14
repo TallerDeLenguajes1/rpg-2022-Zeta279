@@ -1,7 +1,9 @@
-﻿namespace JuegoRPG{
+﻿using System.Text.Json;
+
+namespace JuegoRPG{
     class Program{
         static void Main(string[] args){
-            int cantidadJugadores;
+            int cantidadJugadores = 0;
             List<Personaje> listaPersonajes = new List<Personaje>();
             int opcion = 0, contEnfrentamientos = 1;
             int dmgProvocado1 = 0, dmgProvocado2 = 0, aux;
@@ -22,18 +24,64 @@
                 switch (opcion)
                 {
                     case 1:
-                        // Ingresar la cantidad de jugadores
-                        Console.WriteLine("Ingrese la cantidad de jugadores (mínimo 2, máximo 20): ");
-                        do
-                        {
-                            cantidadJugadores = Int32.Parse(Console.ReadLine());
-                        } while (cantidadJugadores < 2 || cantidadJugadores > 20);
+                        int opcion1 = 0;
 
-                        // Guardar los jugadores en una lista
-                        for (int i = 0; i < cantidadJugadores; i++)
-                        {
-                            listaPersonajes.Add(new Personaje(new Caracteristicas(), new Datos()));
+                        while(opcion1 < 1 || opcion > 3){
+                            Console.WriteLine("1) Generar aleatoriamente los jugadores");
+                            Console.WriteLine("2) Leer los jugadores de un json");
+                            Console.WriteLine("3) Retornar");
+                            Console.Write("Opción: ");
+                            opcion1 = Int32.Parse(Console.ReadLine());
+
+                            switch(opcion1){
+                                case 1:
+                                    // Ingresar la cantidad de jugadores
+                                    Console.WriteLine("Ingrese la cantidad de jugadores (mínimo 2, máximo 20): ");
+                                    do
+                                    {
+                                        cantidadJugadores = Int32.Parse(Console.ReadLine());
+                                    } while (cantidadJugadores < 2 || cantidadJugadores > 20);
+
+                                    // Guardar los jugadores en una lista
+                                    for (int i = 0; i < cantidadJugadores; i++)
+                                    {
+                                        listaPersonajes.Add(new Personaje(new Caracteristicas(), new Datos()));
+                                    }
+
+                                    // Guardar en un archivo json los jugadores
+                                    string json = JsonSerializer.Serialize(listaPersonajes);
+                                    Console.WriteLine(json);
+                                    if(!File.Exists("jugadores.json")){
+                                        File.Create("jugadores.json").Close();
+                                    }
+                                    File.WriteAllText("jugadores.json", json);
+
+                                    break;
+                                case 2:
+                                    // Obtener los jugadores del archivo json
+                                    if(!File.Exists("jugadores.json")){
+                                        Console.WriteLine("No es posible cargar los jugadores de un archivo json");
+                                    }
+                                    else{
+                                        try{
+                                            listaPersonajes = JsonSerializer.Deserialize<List<Personaje>>(File.ReadAllText("jugadores.json"));
+                                            cantidadJugadores = listaPersonajes.Count();
+                                        }
+                                        catch{
+                                            Console.WriteLine("No es posible cargar los jugadores de un archivo json");
+                                        }
+                                    }
+                                    break;
+                                case 3:
+                                    Console.WriteLine("Retornando");
+                                    break;
+                                default:
+                                    Console.WriteLine("Opción inválida");
+                                    break;
+                            }
                         }
+                        
+                        
 
                         // Mostrar los datos de cada jugador
                         Console.WriteLine($"Mostrando los datos de {cantidadJugadores} personajes\n");

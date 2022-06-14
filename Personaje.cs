@@ -8,8 +8,8 @@ namespace JuegoRPG{
             this.dat = dat;
         }
 
-        internal Caracteristicas Carac { get => carac; set => carac = value; }
-        internal Datos Dat { get => dat; set => dat = value; }
+        public Caracteristicas Carac { get => carac; set => carac = value; }
+        public Datos Dat { get => dat; set => dat = value; }
 
         public void MejorarPJ ()
         {
