@@ -47,7 +47,7 @@ namespace JuegoRPG{
             cadena += $"Fecha de nacimiento: {this.dat.FechaNac.ToString("dd/MM/yyyy")}\n";
             cadena += $"Edad: {this.dat.Edad}\n\n";
 
-            cadena += "Caracter�sticas:\n";
+            cadena += "Caracteristicas:\n";
             cadena += $"Velocidad: {this.carac.Velocidad}\n";
             cadena += $"Destreza: {this.carac.Destreza}\n";
             cadena += $"Fuerza: {this.carac.Fuerza}\n";
