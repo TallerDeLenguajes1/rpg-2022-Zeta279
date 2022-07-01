@@ -3,12 +3,10 @@
 namespace JuegoRPG{
     class Program{
         static void Main(string[] args){
-            int cantidad = 0;
-            List<Personaje> listaPersonajes = new List<Personaje>();
-            List<Task> crearPersonajes;
             int opcion = 0;
+            List<Personaje> listaPersonajes = new List<Personaje>();
 
-            while(opcion != 3)
+            while (opcion != 3)
             {
 
                 Console.WriteLine("Ingrese una opción: ");
@@ -22,84 +20,9 @@ namespace JuegoRPG{
                 switch (opcion)
                 {
                     case 1:
-                        int opcion1 = 0;
-
-                        while(opcion1 < 1 || opcion > 3){
-                            Console.WriteLine("1) Generar aleatoriamente los jugadores");
-                            Console.WriteLine("2) Leer los jugadores de un json");
-                            Console.WriteLine("3) Retornar");
-                            Console.Write("Opción: ");
-                            opcion1 = Int32.Parse(Console.ReadLine());
-
-                            switch(opcion1){
-                                case 1:
-                                    // Ingresar la cantidad de jugadores
-                                    Console.WriteLine("Ingrese la cantidad de jugadores (mínimo 2, máximo 20): ");
-                                    do
-                                    {
-                                        cantidad = Int32.Parse(Console.ReadLine());
-                                    } while (cantidad < 2 || cantidad > 20);
-
-                                    // Generar asincrónicamente y guardar los jugadores en una lista
-                                    Console.WriteLine("Creando personajes...");
-                                    crearPersonajes = new List<Task>();
-
-                                    for (int i = 0; i < cantidad; i++)
-                                    {
-                                        crearPersonajes.Add(new Task(() => listaPersonajes.Add(new Personaje(new Caracteristicas(), new Datos()))));
-                                        crearPersonajes[i].Start();
-                                        Thread.Sleep(100);
-                                    }
-                                    for (int i = 0; i < cantidad; i++)
-                                    {
-                                        Console.Write("\r");
-                                        BarraProgreso(i, cantidad);
-                                        crearPersonajes[i].Wait();
-                                    }
-                                    Console.Write("\r");
-                                    BarraProgreso(cantidad, cantidad);
-                                    Console.WriteLine("\nPersonajes creados con éxito");
-                                    Thread.Sleep(1000);
-
-                                    // Guardar en un archivo json los jugadores
-                                    string json = JsonSerializer.Serialize(listaPersonajes);
-                                    if(!File.Exists("jugadores.json")){
-                                        File.Create("jugadores.json").Close();
-                                    }
-                                    File.WriteAllText("jugadores.json", json);
-
-                                    Jugar(listaPersonajes);
-
-                                    break;
-                                case 2:
-                                    // Obtener los jugadores del archivo json
-                                    if(!File.Exists("jugadores.json")){
-                                        Console.WriteLine("No es posible cargar los jugadores de un archivo json");
-                                        opcion1 = 0;
-                                    }
-                                    else
-                                    {
-                                        try{
-                                            listaPersonajes = JsonSerializer.Deserialize<List<Personaje>>(File.ReadAllText("jugadores.json"));
-                                            Jugar(listaPersonajes);
-                                        }
-                                        catch{
-                                            Console.WriteLine("No es posible cargar los jugadores de un archivo json");
-                                            opcion1 = 0;
-                                        }
-                                    }
-                                    break;
-                                case 3:
-                                    Console.WriteLine("Retornando");
-                                    break;
-                                default:
-                                    Console.WriteLine("Opción inválida");
-                                    break;
-                            }
-                        }
-
+                        listaPersonajes = ObtenerJugadores();
+                        if(listaPersonajes.Count > 0) Jugar(listaPersonajes);
                         break;
-
                     case 2:
                         Registro();
                         break;
@@ -114,10 +37,100 @@ namespace JuegoRPG{
             }
         }
 
+        static List<Personaje> ObtenerJugadores()
+        {
+            int opcion = 0;
+            List<Task> crearPersonajes;
+            List<Personaje> listaPersonajes = new List<Personaje>();
+            int cantidad;
+
+            while (opcion < 1 || opcion > 3)
+            {
+                Console.WriteLine("1) Generar aleatoriamente los jugadores");
+                Console.WriteLine("2) Leer los jugadores de un json");
+                Console.WriteLine("3) Retornar");
+                Console.Write("Opción: ");
+                opcion = Int32.Parse(Console.ReadLine());
+
+                switch (opcion)
+                {
+                    case 1:
+                        // Ingresar la cantidad de jugadores
+                        Console.WriteLine("\nIngrese la cantidad de jugadores (mínimo 2, máximo 20): ");
+                        do
+                        {
+                            cantidad = Int32.Parse(Console.ReadLine());
+                        } while (cantidad < 2 || cantidad > 20);
+
+                        // Generar asincrónicamente y guardar los jugadores en una lista
+                        Console.WriteLine("Creando personajes...");
+                        crearPersonajes = new List<Task>();
+
+                        Console.Write("\r");
+                        BarraProgreso(0, cantidad);
+
+                        for (int i = 0; i < cantidad; i++)
+                        {
+                            crearPersonajes.Add(new Task(() => listaPersonajes.Add(new Personaje(new Caracteristicas(), new Datos()))));
+                            crearPersonajes[i].Start();
+                        }
+
+                        for (int i = 0; i < cantidad; i++)
+                        {
+                            crearPersonajes[i].Wait();
+                            Console.Write("\r");
+                            BarraProgreso(i + 1, cantidad);
+                        }
+
+                        Console.WriteLine("\nPersonajes creados con éxito!");
+                        Thread.Sleep(1000);
+
+                        // Guardar en un archivo json los jugadores
+                        string json = JsonSerializer.Serialize(listaPersonajes);
+                        if (!File.Exists("jugadores.json"))
+                        {
+                            File.Create("jugadores.json").Close();
+                        }
+                        File.WriteAllText("jugadores.json", json);
+
+                        break;
+                    case 2:
+                        // Obtener los jugadores del archivo json
+                        if (!File.Exists("jugadores.json"))
+                        {
+                            Console.WriteLine("No es posible cargar los jugadores de un archivo json");
+                            opcion = 0;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                listaPersonajes = JsonSerializer.Deserialize<List<Personaje>>(File.ReadAllText("jugadores.json"));
+                            }
+                            catch
+                            {
+                                Console.WriteLine("No es posible cargar los jugadores de un archivo json");
+                                opcion = 0;
+                            }
+                        }
+                        break;
+                    case 3:
+                        Console.WriteLine("Retornando");
+                        break;
+                    default:
+                        Console.WriteLine("Opción inválida");
+                        break;
+                }
+            }
+
+            return listaPersonajes;
+        }
+
         static void Jugar(List<Personaje> listaPersonajes)
         {
             int dmgProvocado1 = 0, dmgProvocado2 = 0, contEnfrentamientos = 1, aux;
-            int cantidadJugadores = listaPersonajes.Count();
+            int cantidadJugadores = listaPersonajes.Count;
+            Personaje atacante, defensor;
             Random rnd = new Random();
 
             // Mostrar los datos de cada jugador
@@ -131,8 +144,7 @@ namespace JuegoRPG{
             // Elegir los personajes
             Personaje player1 = listaPersonajes[0];
             Personaje player2 = listaPersonajes[1];
-            listaPersonajes.RemoveAt(0);
-            listaPersonajes.RemoveAt(0);
+            for(int i = 0; i < 2; i++) listaPersonajes.RemoveAt(0);
 
 
             // Enfrentamientos entre los jugadores
@@ -187,9 +199,17 @@ namespace JuegoRPG{
                 {
                     Console.WriteLine("Empate");
                 }
+                Console.Write("Presione una tecla para continuar");
+                Console.ReadKey();
+                Console.Write("\r ");
             }
 
             // Mostrar ganador y guardarlo en un archivo .csv
+            GuardarCSV(player1, player2, dmgProvocado1, dmgProvocado2);
+        }
+
+        static void GuardarCSV(Personaje player1, Personaje player2, int danio1, int danio2)
+        {
             if (!File.Exists("ganadores.csv"))
             {
                 File.Create("ganadores.csv").Close();
@@ -199,12 +219,12 @@ namespace JuegoRPG{
             if (player1.estaVivo())
             {
                 Console.WriteLine($"Ganó el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}\n");
-                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player1.Dat.Nombre + " " + player1.Dat.Apodo};{dmgProvocado1}\n");
+                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player1.Dat.Nombre + " " + player1.Dat.Apodo};{danio1}\n");
             }
             else
             {
                 Console.WriteLine($"Ganó el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}\n");
-                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player2.Dat.Nombre + " " + player2.Dat.Apodo};{dmgProvocado2}\n");
+                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player2.Dat.Nombre + " " + player2.Dat.Apodo};{danio2}\n");
             }
         }
 
@@ -224,18 +244,18 @@ namespace JuegoRPG{
 
         static void Registro()
         {
-            int opcionRegistro = 0;
+            int opcion = 0;
 
-            while(opcionRegistro < 1 || opcionRegistro > 2)
+            while(opcion < 1 || opcion > 2)
             {
                 Console.WriteLine("\n1) Ver registro");
                 Console.WriteLine("2) Limpiar registro");
                 Console.WriteLine("3) Regresar al menú");
 
                 Console.Write("Opción: ");
-                opcionRegistro = Int32.Parse(Console.ReadLine());
+                opcion = Int32.Parse(Console.ReadLine());
 
-                switch (opcionRegistro)
+                switch (opcion)
                 {
                     case 1:
                         if (File.Exists("ganadores.csv"))
