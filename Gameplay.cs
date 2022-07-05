@@ -20,6 +20,7 @@
             dmgProvocado = (((valorAtaque * efecDisparo) - poderDefensa) / maxDmgProvocable) * 100;
 
             defensor.RecibirDMG(Convert.ToInt32(dmgProvocado));
+            atacante.DmgTotalCausado += Convert.ToInt32(dmgProvocado);
 
             return Convert.ToInt32(dmgProvocado);
         }

@@ -2,6 +2,7 @@ namespace JuegoRPG{
     class Personaje{
         private Caracteristicas carac;
         private Datos dat;
+        private int dmgTotalCausado;
 
         public Personaje(Caracteristicas carac, Datos dat){
             this.carac = carac;
@@ -10,6 +11,7 @@ namespace JuegoRPG{
 
         public Caracteristicas Carac { get => carac; set => carac = value; }
         public Datos Dat { get => dat; set => dat = value; }
+        public int DmgTotalCausado { get => dmgTotalCausado; set => dmgTotalCausado = value; }
 
         public void MejorarPJ ()
         {
@@ -29,6 +31,15 @@ namespace JuegoRPG{
             {
                 this.dat.Salud = 0;
             }
+        }
+
+        public string NombreYApodo()
+        {
+            string[] lista;
+            lista = (this.Dat.Nombre).Split(" ");
+
+            if (lista.Length < 2) return lista[0] + " " + this.Dat.Apodo;
+            return lista[0] + " " + this.Dat.Apodo + " " + lista[1];
         }
 
         public bool estaVivo()

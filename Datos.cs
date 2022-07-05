@@ -38,6 +38,10 @@ namespace JuegoRPG{
         {
             Persona? persona = await Persona.ObtenerPersona();
             List<String> lista = persona.Name.Split(" ").ToList();
+            while(lista.Count > 2)
+            {
+                lista.RemoveAt(lista.Count - 1);
+            }
             if (lista[0].EndsWith(".")) lista.RemoveAt(0);
             this.Nombre = String.Join(" ", lista);
         }

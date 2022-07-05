@@ -4,15 +4,16 @@ namespace JuegoRPG{
     class Program{
         static void Main(string[] args){
             int opcion = 0;
-            List<Personaje> listaPersonajes = new List<Personaje>();
+            List<Personaje> listaPersonajes;
 
-            while (opcion != 3)
+            while (opcion != 4)
             {
 
                 Console.WriteLine("Ingrese una opción: ");
                 Console.WriteLine("1) Jugar");
                 Console.WriteLine("2) Registro de batallas");
-                Console.WriteLine("3) Salir");
+                Console.WriteLine("3) Opción de desarrollo");
+                Console.WriteLine("4) Salir");
 
                 Console.Write("Opción: ");
                 opcion = Int32.Parse(Console.ReadLine());
@@ -27,6 +28,8 @@ namespace JuegoRPG{
                         Registro();
                         break;
                     case 3:
+                        break;
+                    case 4:
                         Console.WriteLine("Saliendo...");
                         break;
                     default:
@@ -56,11 +59,11 @@ namespace JuegoRPG{
                 {
                     case 1:
                         // Ingresar la cantidad de jugadores
-                        Console.WriteLine("\nIngrese la cantidad de jugadores (mínimo 2, máximo 20): ");
+                        Console.WriteLine("\nIngrese la cantidad de jugadores (mínimo 2, máximo 10): ");
                         do
                         {
                             cantidad = Int32.Parse(Console.ReadLine());
-                        } while (cantidad < 2 || cantidad > 20);
+                        } while (cantidad < 2 || cantidad > 10);
 
                         // Generar asincrónicamente y guardar los jugadores en una lista
                         Console.WriteLine("Creando personajes...");
@@ -128,10 +131,12 @@ namespace JuegoRPG{
 
         static void Jugar(List<Personaje> listaPersonajes)
         {
-            int dmgProvocado1 = 0, dmgProvocado2 = 0, contEnfrentamientos = 1, aux;
+            int contEnfrentamientos = 1, aux, dmgCausado;
             int cantidadJugadores = listaPersonajes.Count;
-            Personaje atacante, defensor;
+            string cadena;
+            int delay = 40, salud, restar;
             Random rnd = new Random();
+            Personaje atacante, defensor, ganador, perdedor;
 
             // Mostrar los datos de cada jugador
             Console.WriteLine($"Mostrando los datos de {cantidadJugadores} personajes\n");
@@ -151,64 +156,129 @@ namespace JuegoRPG{
             while (player1.estaVivo() && player2.estaVivo())
             {
                 Console.WriteLine($"\nEnfrentamiento {contEnfrentamientos++}");
-                Console.WriteLine($"{player1.Dat.Nombre} {player1.Dat.Apodo} vs {player2.Dat.Nombre} {player2.Dat.Apodo}");
+                Console.WriteLine($"{player1.NombreYApodo()} vs {player2.NombreYApodo()}");
 
                 for (int i = 0; i < 6 && player1.estaVivo() && player2.estaVivo(); i++)
                 {
-                    if (i % 2 == 0)
+                    if(i % 2 == 0)
                     {
-                        aux = Gameplay.Ataque(player1, player2);
-                        dmgProvocado1 += aux;
-                        Console.WriteLine($"Ataca el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}");
-                        Console.WriteLine($"Daño provocado: {aux}\n");
+                        atacante = player1;
+                        defensor = player2;
                     }
                     else
                     {
-                        aux = Gameplay.Ataque(player2, player1);
-                        dmgProvocado2 += aux;
-                        Console.WriteLine($"Ataca el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}");
-                        Console.WriteLine($"Daño provocado: {aux}\n");
+                        atacante = player2;
+                        defensor = player1;
                     }
+
+                    salud = defensor.Dat.Salud;
+                    dmgCausado = Gameplay.Ataque(atacante, defensor);
+                    Console.WriteLine($"\nAtaca el jugador {atacante.NombreYApodo()}!");
+                    Thread.Sleep(500);
+                    if (dmgCausado == 0)
+                    {
+                        MostrarDelay("No se provocó ningun daño", delay);
+                    }
+                    else
+                    {
+                        MostrarDelay("Daño provocado: ", delay);
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(dmgCausado);
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        Thread.Sleep(500);
+                        Console.WriteLine();
+                        MostrarDelay($"Salud restante de {defensor.Dat.Nombre}: ", delay);
+                        MostrarColor($"{salud}", ConsoleColor.Red);
+                        Thread.Sleep(500);
+
+                        if (dmgCausado <= 100) restar = 5;
+                        else if (100 < dmgCausado && dmgCausado <= 500) restar = 10;
+                        else if (500 < dmgCausado && dmgCausado <= 1000) restar = 20;
+                        else if (1000 < dmgCausado && dmgCausado <= 3000) restar = 50;
+                        else restar = 100;
+
+                        aux = salud;
+
+                        while (salud > (aux - dmgCausado) && salud > 0)
+                        {
+                            salud -= restar;
+                            if (salud < 0) salud = 0;
+                            LimpiarLinea();
+                            Console.Write($"\rSalud restante de {defensor.Dat.Nombre}: ");
+                            MostrarColor($"{salud}", ConsoleColor.Red);
+                            Thread.Sleep(1);
+                        }
+                        LimpiarLinea();
+                        Console.Write($"\rSalud restante de {defensor.Dat.Nombre}: ");
+                        MostrarColor($"{defensor.Dat.Salud}", ConsoleColor.Red);
+                        Thread.Sleep(500);
+                    }
+
+                    Console.WriteLine();
+                    
                     Thread.Sleep(500);
                 }
 
                 // Determinar ganador del enfrentamiento
-                if (!player1.estaVivo() || player1.Dat.Salud < player2.Dat.Salud)
+                if(player1.Dat.Salud != player2.Dat.Salud)
                 {
-                    Console.WriteLine($"Perdió el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}");
+                    if (!player1.estaVivo() || player1.Dat.Salud < player2.Dat.Salud)
+                    {
+                        ganador = player2;
+                        perdedor = player1;
+                    }
+                    else
+                    {
+                        ganador = player1;
+                        perdedor = player2;
+                    }
+
+                    Console.WriteLine($"\nPerdió el jugador {perdedor.NombreYApodo()}!\n");
                     if (listaPersonajes.Count > 0)
                     {
-                        player1 = listaPersonajes[rnd.Next(0, listaPersonajes.Count)];
-                        listaPersonajes.Remove(player1);
+                        if (ganador == player2) player1 = listaPersonajes[rnd.Next(0, listaPersonajes.Count)];
+                        else player2 = listaPersonajes[rnd.Next(0, listaPersonajes.Count)];
+                        listaPersonajes.Remove(perdedor);
                     }
-                    dmgProvocado1 = 0;
-                    player2.MejorarPJ();
-                }
-                else if (!player2.estaVivo() || player2.Dat.Salud < player1.Dat.Salud)
-                {
-                    Console.WriteLine($"Perdió el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}");
-                    if (listaPersonajes.Count > 0)
-                    {
-                        player2 = listaPersonajes[rnd.Next(0, listaPersonajes.Count)];
-                        listaPersonajes.Remove(player2);
-                    }
-                    dmgProvocado2 = 0;
-                    player1.MejorarPJ();
+
+                    ganador.MejorarPJ();
                 }
                 else
                 {
-                    Console.WriteLine("Empate");
+                    Console.WriteLine("Empate!");
                 }
-                Console.Write("Presione una tecla para continuar");
-                Console.ReadKey();
-                Console.Write("\r ");
             }
 
             // Mostrar ganador y guardarlo en un archivo .csv
-            GuardarCSV(player1, player2, dmgProvocado1, dmgProvocado2);
+            if (player1.estaVivo()) Console.WriteLine($"El GANADOR final de la partida es el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}!!!");
+            else Console.WriteLine($"El GANADOR final de la partida es el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}!!!");
+            GuardarCSV(player1, player2);
         }
 
-        static void GuardarCSV(Personaje player1, Personaje player2, int danio1, int danio2)
+        static void MostrarColor(string cadena, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(cadena);
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
+
+        static void MostrarDelay(string cadena, int delay)
+        {
+            foreach(char c in cadena)
+            {
+                Console.Write(c);
+                Thread.Sleep(delay);
+            }
+        }
+
+        static void LimpiarLinea()
+        {
+            Console.Write("\r");
+            for(int i = 0; i < 100; i++) Console.Write(" ");
+            Console.Write("\r");
+        }
+
+        static void GuardarCSV(Personaje player1, Personaje player2)
         {
             if (!File.Exists("ganadores.csv"))
             {
@@ -218,13 +288,11 @@ namespace JuegoRPG{
 
             if (player1.estaVivo())
             {
-                Console.WriteLine($"Ganó el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}\n");
-                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player1.Dat.Nombre + " " + player1.Dat.Apodo};{danio1}\n");
+                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player1.NombreYApodo};{player1.DmgTotalCausado}\n");
             }
             else
             {
-                Console.WriteLine($"Ganó el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}\n");
-                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player2.Dat.Nombre + " " + player2.Dat.Apodo};{danio2}\n");
+                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player2.NombreYApodo};{player2.DmgTotalCausado}\n");
             }
         }
 
