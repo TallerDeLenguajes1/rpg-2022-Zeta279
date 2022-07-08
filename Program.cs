@@ -6,14 +6,13 @@ namespace JuegoRPG{
             int opcion = 0;
             List<Personaje> listaPersonajes;
 
-            while (opcion != 4)
+            while (opcion != 3)
             {
 
                 Console.WriteLine("Ingrese una opción: ");
                 Console.WriteLine("1) Jugar");
                 Console.WriteLine("2) Registro de batallas");
-                Console.WriteLine("3) Opción de desarrollo");
-                Console.WriteLine("4) Salir");
+                Console.WriteLine("3) Salir");
 
                 Console.Write("Opción: ");
                 opcion = Int32.Parse(Console.ReadLine());
@@ -28,9 +27,7 @@ namespace JuegoRPG{
                         Registro();
                         break;
                     case 3:
-                        break;
-                    case 4:
-                        Console.WriteLine("Saliendo...");
+                        Console.WriteLine("Gracias por jugar!");
                         break;
                     default:
                         Console.WriteLine("Opción incorrecta");
@@ -134,6 +131,7 @@ namespace JuegoRPG{
             int contEnfrentamientos = 1, aux, dmgCausado;
             int cantidadJugadores = listaPersonajes.Count;
             string cadena;
+            bool continuar = true;
             int delay = 40, salud, restar;
             Random rnd = new Random();
             Personaje atacante, defensor, ganador, perdedor;
@@ -153,7 +151,7 @@ namespace JuegoRPG{
 
 
             // Enfrentamientos entre los jugadores
-            while (player1.estaVivo() && player2.estaVivo())
+            while (continuar)
             {
                 Console.WriteLine($"\nEnfrentamiento {contEnfrentamientos++}");
                 Console.WriteLine($"{player1.NombreYApodo()} vs {player2.NombreYApodo()}");
@@ -234,14 +232,19 @@ namespace JuegoRPG{
                     }
 
                     Console.WriteLine($"\nPerdió el jugador {perdedor.NombreYApodo()}!\n");
+
                     if (listaPersonajes.Count > 0)
                     {
                         if (ganador == player2) player1 = listaPersonajes[rnd.Next(0, listaPersonajes.Count)];
                         else player2 = listaPersonajes[rnd.Next(0, listaPersonajes.Count)];
                         listaPersonajes.Remove(perdedor);
+                        ganador.MejorarPJ();
+                    }
+                    else
+                    {
+                        continuar = false;
                     }
 
-                    ganador.MejorarPJ();
                 }
                 else
                 {
@@ -288,11 +291,11 @@ namespace JuegoRPG{
 
             if (player1.estaVivo())
             {
-                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player1.NombreYApodo};{player1.DmgTotalCausado}\n");
+                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player1.NombreYApodo()};{player1.DmgTotalCausado}\n");
             }
             else
             {
-                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player2.NombreYApodo};{player2.DmgTotalCausado}\n");
+                File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player2.NombreYApodo()};{player2.DmgTotalCausado}\n");
             }
         }
 
