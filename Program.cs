@@ -87,12 +87,10 @@ namespace JuegoRPG{
 
                         // Guardar en un archivo json los jugadores
                         string json = JsonSerializer.Serialize(listaPersonajes);
-                        if (!File.Exists("jugadores.json"))
-                        {
-                            File.Create("jugadores.json").Close();
-                        }
-                        File.WriteAllText("jugadores.json", json);
 
+                        if (!File.Exists("jugadores.json")) File.Create("jugadores.json").Close();
+
+                        File.WriteAllText("jugadores.json", json);
                         break;
                     case 2:
                         // Obtener los jugadores del archivo json
@@ -130,11 +128,10 @@ namespace JuegoRPG{
         {
             int contEnfrentamientos = 1, aux, dmgCausado;
             int cantidadJugadores = listaPersonajes.Count;
-            string cadena;
             bool continuar = true;
             int delay = 40, salud, restar;
             Random rnd = new Random();
-            Personaje atacante, defensor, ganador, perdedor;
+            Personaje atacante, defensor, ganador = new Personaje(new Caracteristicas(), new Datos()), perdedor = new Personaje(new Caracteristicas(), new Datos());
 
             // Mostrar los datos de cada jugador
             Console.WriteLine($"Mostrando los datos de {cantidadJugadores} personajes\n");
@@ -180,13 +177,14 @@ namespace JuegoRPG{
                     else
                     {
                         MostrarDelay("Daño provocado: ", delay);
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write(dmgCausado);
-                        Console.ForegroundColor = ConsoleColor.Gray;
+                        MostrarColor($"{dmgCausado}", ConsoleColor.Red);
+
                         Thread.Sleep(500);
+
                         Console.WriteLine();
                         MostrarDelay($"Salud restante de {defensor.Dat.Nombre}: ", delay);
                         MostrarColor($"{salud}", ConsoleColor.Red);
+
                         Thread.Sleep(500);
 
                         if (dmgCausado <= 100) restar = 5;
@@ -253,8 +251,7 @@ namespace JuegoRPG{
             }
 
             // Mostrar ganador y guardarlo en un archivo .csv
-            if (player1.estaVivo()) Console.WriteLine($"El GANADOR final de la partida es el jugador {player1.Dat.Nombre} {player1.Dat.Apodo}!!!");
-            else Console.WriteLine($"El GANADOR final de la partida es el jugador {player2.Dat.Nombre} {player2.Dat.Apodo}!!!");
+            Console.WriteLine($"El GANADOR final de la partida es el jugador {ganador.NombreYApodo()}!!!");
             GuardarCSV(player1, player2);
         }
 
@@ -289,7 +286,7 @@ namespace JuegoRPG{
                 File.WriteAllText("ganadores.csv", "FECHA;NOMBRE;DAÑO\n");
             }
 
-            if (player1.estaVivo())
+            if (player1.estaVivo() || player2.Dat.Salud < player1.Dat.Salud)
             {
                 File.AppendAllText("ganadores.csv", $"{DateTime.Now.ToString("dd/MM/yyyy")};{player1.NombreYApodo()};{player1.DmgTotalCausado}\n");
             }
